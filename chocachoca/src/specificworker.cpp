@@ -75,6 +75,7 @@ void SpecificWorker::initialize(int period)
 
 void SpecificWorker::compute()
 {
+    qInfo() << "asdasd";
 	//computeCODE
 	//QMutexLocker locker(mutex);
 	//try
