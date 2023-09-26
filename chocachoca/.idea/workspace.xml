@@ -6,53 +6,27 @@
   <component name="CMakePresetLoader"><![CDATA[{
   "useNewFormat": true
 }]]></component>
+  <component name="CMakeReloadState">
+    <option name="reloaded" value="true" />
+  </component>
+  <component name="CMakeRunConfigurationManager">
+    <generated>
+      <config projectName="chocachoca" targetName="ICES__home_usuario_robocomp_components_Robotica_chocachoca_src" />
+      <config projectName="chocachoca" targetName="chocachoca" />
+    </generated>
+  </component>
   <component name="CMakeSettings">
     <configurations>
-      <configuration PROFILE_NAME="Debug" ENABLED="true" GENERATION_DIR="." CONFIG_NAME="Debug" />
+      <configuration PROFILE_NAME="Debug" ENABLED="true" GENERATION_DIR="." CONFIG_NAME="Debug" GENERATION_OPTIONS="-G &quot;Unix Makefiles&quot;" BUILD_OPTIONS="-j12" />
     </configurations>
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8e4a4d6b-e415-4892-9073-27e3106d9b15" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.cmake/api/v1/reply/cache-v2-c08c314bd01b6edd0b5f.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.cmake/api/v1/reply/cmakeFiles-v1-51861600ac3f54f33fd0.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.cmake/api/v1/reply/codemodel-v2-3245b21ccaa28141b7f3.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.cmake/api/v1/reply/directory-.-589b6644c9b859682b38.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.cmake/api/v1/reply/directory-src-c6857371062b1daeb7b4.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.cmake/api/v1/reply/index-2023-09-20T17-33-58-0255.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.cmake/api/v1/reply/target-ICES__home_usuario_robocomp_components_Robotica_chocachoca_src-e6d589a7f4f4c1b7ff5a.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.cmake/api/v1/reply/target-chocachoca-a3e78642b95539cdb2eb.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.cmake/api/v1/reply/target-chocachoca_autogen-46d4738a9432ec0b3853.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/chocachoca.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeCache.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeCache.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeFiles/3.22.1/CMakeCCompiler.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeFiles/3.22.1/CMakeCXXCompiler.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeFiles/3.22.1/CMakeDetermineCompilerABI_C.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeFiles/3.22.1/CMakeDetermineCompilerABI_CXX.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeFiles/3.22.1/CMakeSystem.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeFiles/3.22.1/CompilerIdC/CMakeCCompilerId.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeFiles/3.22.1/CompilerIdC/a.out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeFiles/3.22.1/CompilerIdCXX/CMakeCXXCompilerId.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeFiles/3.22.1/CompilerIdCXX/a.out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeFiles/3.26.4/CMakeSystem.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeFiles/3.26.4/CMakeSystem.cmake" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeFiles/CMakeConfigureLog.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeFiles/CMakeConfigureLog.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeFiles/CMakeOutput.log" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeFiles/CMakeRuleHashes.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeFiles/CMakeRuleHashes.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeFiles/Makefile.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeFiles/Makefile.cmake" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeFiles/clion-Default-log.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeFiles/clion-environment.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeFiles/clion-environment.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.cmake/api/v1/reply/index-2023-09-26T14-01-47-0019.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Testing/Temporary/LastTest.log" beforeDir="false" afterPath="$PROJECT_DIR$/Testing/Temporary/LastTest.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake_install.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/cmake_install.cmake" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/CMakeFiles/chocachoca.dir/compiler_depend.internal" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/CMakeFiles/chocachoca.dir/compiler_depend.make" beforeDir="false" afterPath="$PROJECT_DIR$/src/CMakeFiles/chocachoca.dir/compiler_depend.make" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/CMakeFiles/chocachoca.dir/flags.make" beforeDir="false" afterPath="$PROJECT_DIR$/src/CMakeFiles/chocachoca.dir/flags.make" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/CMakeFiles/chocachoca.dir/link.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/CMakeFiles/chocachoca.dir/link.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/CMakeFiles/chocachoca_autogen.dir/AutogenInfo.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/CMakeFiles/chocachoca_autogen.dir/AutogenInfo.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/CMakeFiles/chocachoca_autogen.dir/build.make" beforeDir="false" afterPath="$PROJECT_DIR$/src/CMakeFiles/chocachoca_autogen.dir/build.make" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/cmake_install.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/src/cmake_install.cmake" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/etc/config" beforeDir="false" afterPath="$PROJECT_DIR$/etc/config" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/specificworker.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/specificworker.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,6 +36,7 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
@@ -90,7 +65,13 @@
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
     "git-widget-placeholder": "main",
-    "last_opened_file_path": "/home/usuario/robocomp/components/Robotica/chocachoca",
+    "last_opened_file_path": "/home/usuario/robocomp/interfaces/IDSLs/Lidar3D.idsl",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "structure.view.defaults.are.configured": "true",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -123,11 +104,17 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1695736881533</updated>
-      <workItem from="1695736882906" duration="3000" />
+      <workItem from="1695736882906" duration="4757000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VCPKGProject">
+    <isAutomaticEditVcpkgJson value="false" />
+    <isAutomaticCheckingOnLaunch value="false" />
+    <isAutomaticFoundErrors value="true" />
+    <isAutomaticFoundErrors value="true" />
   </component>
 </project>
