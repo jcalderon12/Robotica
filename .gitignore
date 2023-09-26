@@ -1,0 +1,14 @@
+bin/
+CMakeCache.txt
+CMakeFiles/
+Testing/
+
+Makefile
+.idea/
+.cmake/
+*.cmake
+*.ice
+src/CommonBehavior.*
+src/Lidar3D.*
+src/chocachoca_autogen/
+src/ui_mainUI.*
