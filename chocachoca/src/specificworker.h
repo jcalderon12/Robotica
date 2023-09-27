@@ -28,6 +28,7 @@
 #define SPECIFICWORKER_H
 
 #include <genericworker.h>
+#include <abstract_graphic_viewer/abstract_graphic_viewer.h>
 
 class SpecificWorker : public GenericWorker
 {
@@ -45,7 +46,9 @@ public slots:
 	void initialize(int period);
 private:
 	bool startup_check_flag;
+    AbstractGraphicViewer* viewer;
 
+    void draw_lidar(RoboCompLidar3D::TPoints &points,AbstractGraphicViewer *viewer);
 };
 
 #endif

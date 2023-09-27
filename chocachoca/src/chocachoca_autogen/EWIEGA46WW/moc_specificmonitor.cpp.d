@@ -1,5 +1,7 @@
 /home/usuario/robocomp/components/Robotica/chocachoca/src/chocachoca_autogen/EWIEGA46WW/moc_specificmonitor.cpp: /home/usuario/robocomp/components/Robotica/chocachoca/src/specificmonitor.h \
   /home/usuario/robocomp/components/Robotica/chocachoca/src/chocachoca_autogen/moc_predefs.h \
+  /home/usuario/robocomp_ws/src/robocomp/components/Robotica/chocachoca/src/CommonBehavior.h \
+  /home/usuario/robocomp_ws/src/robocomp/components/Robotica/chocachoca/src/Lidar3D.h \
   /home/usuario/robocomp_ws/src/robocomp/components/Robotica/chocachoca/src/config.h \
   /home/usuario/robocomp_ws/src/robocomp/components/Robotica/chocachoca/src/genericmonitor.h \
   /home/usuario/robocomp_ws/src/robocomp/components/Robotica/chocachoca/src/genericworker.h \
