@@ -1,7 +1,9 @@
 /home/usuario/robocomp/components/Robotica/chocachoca/src/chocachoca_autogen/EWIEGA46WW/moc_specificworker.cpp: /home/usuario/robocomp/components/Robotica/chocachoca/src/specificworker.h \
   /home/usuario/robocomp/components/Robotica/chocachoca/src/chocachoca_autogen/moc_predefs.h \
   /home/usuario/robocomp_ws/src/robocomp/components/Robotica/chocachoca/src/CommonBehavior.h \
+  /home/usuario/robocomp_ws/src/robocomp/components/Robotica/chocachoca/src/GenericBase.h \
   /home/usuario/robocomp_ws/src/robocomp/components/Robotica/chocachoca/src/Lidar3D.h \
+  /home/usuario/robocomp_ws/src/robocomp/components/Robotica/chocachoca/src/OmniRobot.h \
   /home/usuario/robocomp_ws/src/robocomp/components/Robotica/chocachoca/src/config.h \
   /home/usuario/robocomp_ws/src/robocomp/components/Robotica/chocachoca/src/genericworker.h \
   /home/usuario/robocomp_ws/src/robocomp/components/Robotica/chocachoca/src/ui_mainUI.h \
@@ -253,6 +255,7 @@
   /usr/include/c++/11/pstl/glue_memory_defs.h \
   /usr/include/c++/11/pstl/glue_numeric_defs.h \
   /usr/include/c++/11/random \
+  /usr/include/c++/11/ranges \
   /usr/include/c++/11/set \
   /usr/include/c++/11/sstream \
   /usr/include/c++/11/stdexcept \

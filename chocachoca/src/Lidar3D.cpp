@@ -55,12 +55,16 @@ const ::std::string iceC_RoboCompLidar3D_Lidar3D_ids[2] =
 const ::std::string iceC_RoboCompLidar3D_Lidar3D_ops[] =
 {
     "getLidarData",
+    "getLidarDataProyectedInImage",
+    "getLidarDataWithThreshold2d",
     "ice_id",
     "ice_ids",
     "ice_isA",
     "ice_ping"
 };
 const ::std::string iceC_RoboCompLidar3D_Lidar3D_getLidarData_name = "getLidarData";
+const ::std::string iceC_RoboCompLidar3D_Lidar3D_getLidarDataProyectedInImage_name = "getLidarDataProyectedInImage";
+const ::std::string iceC_RoboCompLidar3D_Lidar3D_getLidarDataWithThreshold2d_name = "getLidarDataWithThreshold2d";
 
 }
 
@@ -96,12 +100,47 @@ RoboCompLidar3D::Lidar3D::_iceD_getLidarData(::IceInternal::Incoming& inS, const
     _iceCheckMode(::Ice::OperationMode::Normal, current.mode);
     auto istr = inS.startReadParams();
     ::std::string iceP_name;
-    int iceP_start;
-    int iceP_len;
-    int iceP_decimationfactor;
-    istr->readAll(iceP_name, iceP_start, iceP_len, iceP_decimationfactor);
+    float iceP_start;
+    float iceP_len;
+    int iceP_decimationDegreeFactor;
+    istr->readAll(iceP_name, iceP_start, iceP_len, iceP_decimationDegreeFactor);
     inS.endReadParams();
-    TData ret = this->getLidarData(::std::move(iceP_name), iceP_start, iceP_len, iceP_decimationfactor, current);
+    TData ret = this->getLidarData(::std::move(iceP_name), iceP_start, iceP_len, iceP_decimationDegreeFactor, current);
+    auto ostr = inS.startWriteParams();
+    ostr->writeAll(ret);
+    inS.endWriteParams();
+    return true;
+}
+/// \endcond
+
+/// \cond INTERNAL
+bool
+RoboCompLidar3D::Lidar3D::_iceD_getLidarDataProyectedInImage(::IceInternal::Incoming& inS, const ::Ice::Current& current)
+{
+    _iceCheckMode(::Ice::OperationMode::Normal, current.mode);
+    auto istr = inS.startReadParams();
+    ::std::string iceP_name;
+    istr->readAll(iceP_name);
+    inS.endReadParams();
+    TData ret = this->getLidarDataProyectedInImage(::std::move(iceP_name), current);
+    auto ostr = inS.startWriteParams();
+    ostr->writeAll(ret);
+    inS.endWriteParams();
+    return true;
+}
+/// \endcond
+
+/// \cond INTERNAL
+bool
+RoboCompLidar3D::Lidar3D::_iceD_getLidarDataWithThreshold2d(::IceInternal::Incoming& inS, const ::Ice::Current& current)
+{
+    _iceCheckMode(::Ice::OperationMode::Normal, current.mode);
+    auto istr = inS.startReadParams();
+    ::std::string iceP_name;
+    float iceP_distance;
+    istr->readAll(iceP_name, iceP_distance);
+    inS.endReadParams();
+    TData ret = this->getLidarDataWithThreshold2d(::std::move(iceP_name), iceP_distance, current);
     auto ostr = inS.startWriteParams();
     ostr->writeAll(ret);
     inS.endWriteParams();
@@ -113,7 +152,7 @@ RoboCompLidar3D::Lidar3D::_iceD_getLidarData(::IceInternal::Incoming& inS, const
 bool
 RoboCompLidar3D::Lidar3D::_iceDispatch(::IceInternal::Incoming& in, const ::Ice::Current& current)
 {
-    ::std::pair<const ::std::string*, const ::std::string*> r = ::std::equal_range(iceC_RoboCompLidar3D_Lidar3D_ops, iceC_RoboCompLidar3D_Lidar3D_ops + 5, current.operation);
+    ::std::pair<const ::std::string*, const ::std::string*> r = ::std::equal_range(iceC_RoboCompLidar3D_Lidar3D_ops, iceC_RoboCompLidar3D_Lidar3D_ops + 7, current.operation);
     if(r.first == r.second)
     {
         throw ::Ice::OperationNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
@@ -127,17 +166,25 @@ RoboCompLidar3D::Lidar3D::_iceDispatch(::IceInternal::Incoming& in, const ::Ice:
         }
         case 1:
         {
-            return _iceD_ice_id(in, current);
+            return _iceD_getLidarDataProyectedInImage(in, current);
         }
         case 2:
         {
-            return _iceD_ice_ids(in, current);
+            return _iceD_getLidarDataWithThreshold2d(in, current);
         }
         case 3:
         {
-            return _iceD_ice_isA(in, current);
+            return _iceD_ice_id(in, current);
         }
         case 4:
+        {
+            return _iceD_ice_ids(in, current);
+        }
+        case 5:
+        {
+            return _iceD_ice_isA(in, current);
+        }
+        case 6:
         {
             return _iceD_ice_ping(in, current);
         }
@@ -152,13 +199,41 @@ RoboCompLidar3D::Lidar3D::_iceDispatch(::IceInternal::Incoming& in, const ::Ice:
 
 /// \cond INTERNAL
 void
-RoboCompLidar3D::Lidar3DPrx::_iceI_getLidarData(const ::std::shared_ptr<::IceInternal::OutgoingAsyncT<::RoboCompLidar3D::TData>>& outAsync, const ::std::string& iceP_name, int iceP_start, int iceP_len, int iceP_decimationfactor, const ::Ice::Context& context)
+RoboCompLidar3D::Lidar3DPrx::_iceI_getLidarData(const ::std::shared_ptr<::IceInternal::OutgoingAsyncT<::RoboCompLidar3D::TData>>& outAsync, const ::std::string& iceP_name, float iceP_start, float iceP_len, int iceP_decimationDegreeFactor, const ::Ice::Context& context)
 {
     _checkTwowayOnly(iceC_RoboCompLidar3D_Lidar3D_getLidarData_name);
     outAsync->invoke(iceC_RoboCompLidar3D_Lidar3D_getLidarData_name, ::Ice::OperationMode::Normal, ::Ice::FormatType::DefaultFormat, context,
         [&](::Ice::OutputStream* ostr)
         {
-            ostr->writeAll(iceP_name, iceP_start, iceP_len, iceP_decimationfactor);
+            ostr->writeAll(iceP_name, iceP_start, iceP_len, iceP_decimationDegreeFactor);
+        },
+        nullptr);
+}
+/// \endcond
+
+/// \cond INTERNAL
+void
+RoboCompLidar3D::Lidar3DPrx::_iceI_getLidarDataProyectedInImage(const ::std::shared_ptr<::IceInternal::OutgoingAsyncT<::RoboCompLidar3D::TData>>& outAsync, const ::std::string& iceP_name, const ::Ice::Context& context)
+{
+    _checkTwowayOnly(iceC_RoboCompLidar3D_Lidar3D_getLidarDataProyectedInImage_name);
+    outAsync->invoke(iceC_RoboCompLidar3D_Lidar3D_getLidarDataProyectedInImage_name, ::Ice::OperationMode::Normal, ::Ice::FormatType::DefaultFormat, context,
+        [&](::Ice::OutputStream* ostr)
+        {
+            ostr->writeAll(iceP_name);
+        },
+        nullptr);
+}
+/// \endcond
+
+/// \cond INTERNAL
+void
+RoboCompLidar3D::Lidar3DPrx::_iceI_getLidarDataWithThreshold2d(const ::std::shared_ptr<::IceInternal::OutgoingAsyncT<::RoboCompLidar3D::TData>>& outAsync, const ::std::string& iceP_name, float iceP_distance, const ::Ice::Context& context)
+{
+    _checkTwowayOnly(iceC_RoboCompLidar3D_Lidar3D_getLidarDataWithThreshold2d_name);
+    outAsync->invoke(iceC_RoboCompLidar3D_Lidar3D_getLidarDataWithThreshold2d_name, ::Ice::OperationMode::Normal, ::Ice::FormatType::DefaultFormat, context,
+        [&](::Ice::OutputStream* ostr)
+        {
+            ostr->writeAll(iceP_name, iceP_distance);
         },
         nullptr);
 }
@@ -189,6 +264,10 @@ namespace
 
 const ::std::string iceC_RoboCompLidar3D_Lidar3D_getLidarData_name = "getLidarData";
 
+const ::std::string iceC_RoboCompLidar3D_Lidar3D_getLidarDataProyectedInImage_name = "getLidarDataProyectedInImage";
+
+const ::std::string iceC_RoboCompLidar3D_Lidar3D_getLidarDataWithThreshold2d_name = "getLidarDataWithThreshold2d";
+
 }
 
 /// \cond INTERNAL
@@ -212,7 +291,7 @@ void
 /// \endcond
 
 ::Ice::AsyncResultPtr
-IceProxy::RoboCompLidar3D::Lidar3D::_iceI_begin_getLidarData(const ::std::string& iceP_name, ::Ice::Int iceP_start, ::Ice::Int iceP_len, ::Ice::Int iceP_decimationfactor, const ::Ice::Context& context, const ::IceInternal::CallbackBasePtr& del, const ::Ice::LocalObjectPtr& cookie, bool sync)
+IceProxy::RoboCompLidar3D::Lidar3D::_iceI_begin_getLidarData(const ::std::string& iceP_name, ::Ice::Float iceP_start, ::Ice::Float iceP_len, ::Ice::Int iceP_decimationDegreeFactor, const ::Ice::Context& context, const ::IceInternal::CallbackBasePtr& del, const ::Ice::LocalObjectPtr& cookie, bool sync)
 {
     _checkTwowayOnly(iceC_RoboCompLidar3D_Lidar3D_getLidarData_name, sync);
     ::IceInternal::OutgoingAsyncPtr result = new ::IceInternal::CallbackOutgoing(this, iceC_RoboCompLidar3D_Lidar3D_getLidarData_name, del, cookie, sync);
@@ -223,7 +302,7 @@ IceProxy::RoboCompLidar3D::Lidar3D::_iceI_begin_getLidarData(const ::std::string
         ostr->write(iceP_name);
         ostr->write(iceP_start);
         ostr->write(iceP_len);
-        ostr->write(iceP_decimationfactor);
+        ostr->write(iceP_decimationDegreeFactor);
         result->endWriteParams();
         result->invoke(iceC_RoboCompLidar3D_Lidar3D_getLidarData_name);
     }
@@ -238,6 +317,91 @@ IceProxy::RoboCompLidar3D::Lidar3D::_iceI_begin_getLidarData(const ::std::string
 IceProxy::RoboCompLidar3D::Lidar3D::end_getLidarData(const ::Ice::AsyncResultPtr& result)
 {
     ::Ice::AsyncResult::_check(result, this, iceC_RoboCompLidar3D_Lidar3D_getLidarData_name);
+    ::RoboCompLidar3D::TData ret;
+    if(!result->_waitForResponse())
+    {
+        try
+        {
+            result->_throwUserException();
+        }
+        catch(const ::Ice::UserException& ex)
+        {
+            throw ::Ice::UnknownUserException(__FILE__, __LINE__, ex.ice_id());
+        }
+    }
+    ::Ice::InputStream* istr = result->_startReadParams();
+    istr->read(ret);
+    result->_endReadParams();
+    return ret;
+}
+
+::Ice::AsyncResultPtr
+IceProxy::RoboCompLidar3D::Lidar3D::_iceI_begin_getLidarDataProyectedInImage(const ::std::string& iceP_name, const ::Ice::Context& context, const ::IceInternal::CallbackBasePtr& del, const ::Ice::LocalObjectPtr& cookie, bool sync)
+{
+    _checkTwowayOnly(iceC_RoboCompLidar3D_Lidar3D_getLidarDataProyectedInImage_name, sync);
+    ::IceInternal::OutgoingAsyncPtr result = new ::IceInternal::CallbackOutgoing(this, iceC_RoboCompLidar3D_Lidar3D_getLidarDataProyectedInImage_name, del, cookie, sync);
+    try
+    {
+        result->prepare(iceC_RoboCompLidar3D_Lidar3D_getLidarDataProyectedInImage_name, ::Ice::Normal, context);
+        ::Ice::OutputStream* ostr = result->startWriteParams(::Ice::DefaultFormat);
+        ostr->write(iceP_name);
+        result->endWriteParams();
+        result->invoke(iceC_RoboCompLidar3D_Lidar3D_getLidarDataProyectedInImage_name);
+    }
+    catch(const ::Ice::Exception& ex)
+    {
+        result->abort(ex);
+    }
+    return result;
+}
+
+::RoboCompLidar3D::TData
+IceProxy::RoboCompLidar3D::Lidar3D::end_getLidarDataProyectedInImage(const ::Ice::AsyncResultPtr& result)
+{
+    ::Ice::AsyncResult::_check(result, this, iceC_RoboCompLidar3D_Lidar3D_getLidarDataProyectedInImage_name);
+    ::RoboCompLidar3D::TData ret;
+    if(!result->_waitForResponse())
+    {
+        try
+        {
+            result->_throwUserException();
+        }
+        catch(const ::Ice::UserException& ex)
+        {
+            throw ::Ice::UnknownUserException(__FILE__, __LINE__, ex.ice_id());
+        }
+    }
+    ::Ice::InputStream* istr = result->_startReadParams();
+    istr->read(ret);
+    result->_endReadParams();
+    return ret;
+}
+
+::Ice::AsyncResultPtr
+IceProxy::RoboCompLidar3D::Lidar3D::_iceI_begin_getLidarDataWithThreshold2d(const ::std::string& iceP_name, ::Ice::Float iceP_distance, const ::Ice::Context& context, const ::IceInternal::CallbackBasePtr& del, const ::Ice::LocalObjectPtr& cookie, bool sync)
+{
+    _checkTwowayOnly(iceC_RoboCompLidar3D_Lidar3D_getLidarDataWithThreshold2d_name, sync);
+    ::IceInternal::OutgoingAsyncPtr result = new ::IceInternal::CallbackOutgoing(this, iceC_RoboCompLidar3D_Lidar3D_getLidarDataWithThreshold2d_name, del, cookie, sync);
+    try
+    {
+        result->prepare(iceC_RoboCompLidar3D_Lidar3D_getLidarDataWithThreshold2d_name, ::Ice::Normal, context);
+        ::Ice::OutputStream* ostr = result->startWriteParams(::Ice::DefaultFormat);
+        ostr->write(iceP_name);
+        ostr->write(iceP_distance);
+        result->endWriteParams();
+        result->invoke(iceC_RoboCompLidar3D_Lidar3D_getLidarDataWithThreshold2d_name);
+    }
+    catch(const ::Ice::Exception& ex)
+    {
+        result->abort(ex);
+    }
+    return result;
+}
+
+::RoboCompLidar3D::TData
+IceProxy::RoboCompLidar3D::Lidar3D::end_getLidarDataWithThreshold2d(const ::Ice::AsyncResultPtr& result)
+{
+    ::Ice::AsyncResult::_check(result, this, iceC_RoboCompLidar3D_Lidar3D_getLidarDataWithThreshold2d_name);
     ::RoboCompLidar3D::TData ret;
     if(!result->_waitForResponse())
     {
@@ -325,15 +489,51 @@ RoboCompLidar3D::Lidar3D::_iceD_getLidarData(::IceInternal::Incoming& inS, const
     _iceCheckMode(::Ice::Normal, current.mode);
     ::Ice::InputStream* istr = inS.startReadParams();
     ::std::string iceP_name;
-    ::Ice::Int iceP_start;
-    ::Ice::Int iceP_len;
-    ::Ice::Int iceP_decimationfactor;
+    ::Ice::Float iceP_start;
+    ::Ice::Float iceP_len;
+    ::Ice::Int iceP_decimationDegreeFactor;
     istr->read(iceP_name);
     istr->read(iceP_start);
     istr->read(iceP_len);
-    istr->read(iceP_decimationfactor);
+    istr->read(iceP_decimationDegreeFactor);
     inS.endReadParams();
-    TData ret = this->getLidarData(iceP_name, iceP_start, iceP_len, iceP_decimationfactor, current);
+    TData ret = this->getLidarData(iceP_name, iceP_start, iceP_len, iceP_decimationDegreeFactor, current);
+    ::Ice::OutputStream* ostr = inS.startWriteParams();
+    ostr->write(ret);
+    inS.endWriteParams();
+    return true;
+}
+/// \endcond
+
+/// \cond INTERNAL
+bool
+RoboCompLidar3D::Lidar3D::_iceD_getLidarDataProyectedInImage(::IceInternal::Incoming& inS, const ::Ice::Current& current)
+{
+    _iceCheckMode(::Ice::Normal, current.mode);
+    ::Ice::InputStream* istr = inS.startReadParams();
+    ::std::string iceP_name;
+    istr->read(iceP_name);
+    inS.endReadParams();
+    TData ret = this->getLidarDataProyectedInImage(iceP_name, current);
+    ::Ice::OutputStream* ostr = inS.startWriteParams();
+    ostr->write(ret);
+    inS.endWriteParams();
+    return true;
+}
+/// \endcond
+
+/// \cond INTERNAL
+bool
+RoboCompLidar3D::Lidar3D::_iceD_getLidarDataWithThreshold2d(::IceInternal::Incoming& inS, const ::Ice::Current& current)
+{
+    _iceCheckMode(::Ice::Normal, current.mode);
+    ::Ice::InputStream* istr = inS.startReadParams();
+    ::std::string iceP_name;
+    ::Ice::Float iceP_distance;
+    istr->read(iceP_name);
+    istr->read(iceP_distance);
+    inS.endReadParams();
+    TData ret = this->getLidarDataWithThreshold2d(iceP_name, iceP_distance, current);
     ::Ice::OutputStream* ostr = inS.startWriteParams();
     ostr->write(ret);
     inS.endWriteParams();
@@ -346,6 +546,8 @@ namespace
 const ::std::string iceC_RoboCompLidar3D_Lidar3D_all[] =
 {
     "getLidarData",
+    "getLidarDataProyectedInImage",
+    "getLidarDataWithThreshold2d",
     "ice_id",
     "ice_ids",
     "ice_isA",
@@ -358,7 +560,7 @@ const ::std::string iceC_RoboCompLidar3D_Lidar3D_all[] =
 bool
 RoboCompLidar3D::Lidar3D::_iceDispatch(::IceInternal::Incoming& in, const ::Ice::Current& current)
 {
-    ::std::pair<const ::std::string*, const ::std::string*> r = ::std::equal_range(iceC_RoboCompLidar3D_Lidar3D_all, iceC_RoboCompLidar3D_Lidar3D_all + 5, current.operation);
+    ::std::pair<const ::std::string*, const ::std::string*> r = ::std::equal_range(iceC_RoboCompLidar3D_Lidar3D_all, iceC_RoboCompLidar3D_Lidar3D_all + 7, current.operation);
     if(r.first == r.second)
     {
         throw ::Ice::OperationNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
@@ -372,17 +574,25 @@ RoboCompLidar3D::Lidar3D::_iceDispatch(::IceInternal::Incoming& in, const ::Ice:
         }
         case 1:
         {
-            return _iceD_ice_id(in, current);
+            return _iceD_getLidarDataProyectedInImage(in, current);
         }
         case 2:
         {
-            return _iceD_ice_ids(in, current);
+            return _iceD_getLidarDataWithThreshold2d(in, current);
         }
         case 3:
         {
-            return _iceD_ice_isA(in, current);
+            return _iceD_ice_id(in, current);
         }
         case 4:
+        {
+            return _iceD_ice_ids(in, current);
+        }
+        case 5:
+        {
+            return _iceD_ice_isA(in, current);
+        }
+        case 6:
         {
             return _iceD_ice_ping(in, current);
         }
