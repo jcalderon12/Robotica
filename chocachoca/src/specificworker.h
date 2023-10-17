@@ -39,8 +39,6 @@ public:
 	~SpecificWorker();
 	bool setParams(RoboCompCommonBehavior::ParameterList params);
 
-
-
 public slots:
 	void compute();
 	int startup_check();
@@ -49,6 +47,12 @@ private:
 	bool startup_check_flag;
     AbstractGraphicViewer* viewer;
 
+    enum class Modo { IDLE, FOLLOW_WALL, STRAIGHT_LINE, SPIRAL, CHOCACHOCA };
+    Modo modo = Modo::FOLLOW_WALL;
+    void follow_wall(RoboCompLidar3D::TPoints &f_points);
+    void straight_line(RoboCompLidar3D::TPoints &f_points);
+    void spiral(RoboCompLidar3D::TPoints &f_points);
+    void chocachoca(RoboCompLidar3D::TPoints &f_points);
     void draw_lidar(RoboCompLidar3D::TPoints &points,AbstractGraphicViewer *viewer);
 };
 

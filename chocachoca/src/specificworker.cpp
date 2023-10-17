@@ -80,13 +80,12 @@ void SpecificWorker::initialize(int period)
 
 void SpecificWorker::compute()
 {
-
 	try
 	{
         auto ldata =lidar3d_proxy->getLidarData("bpearl", 0, 360, 1);
-        //qInfo() << ldata.points.size();
+        qInfo() << ldata.points.size();
         const auto &points = ldata.points;
-        //if( points.empty()) return;
+        if( points.empty()) return;
 
         RoboCompLidar3D::TPoints filtered_points;
         std::ranges::copy_if(ldata.points, std::back_inserter(filtered_points), [](auto &p){ return p.z < 2000;});
@@ -94,17 +93,30 @@ void SpecificWorker::compute()
 
         /// control
 
+        switch (modo) {
+            case Modo::IDLE:
+                    omnirobot_proxy->setSpeedBase(0,0,0);
+                break;
+            case Modo::FOLLOW_WALL:
+                follow_wall(filtered_points);
+                break;
+            case Modo::SPIRAL:
 
-        int offset = points.size()/2-points.size()/5;
-        auto min_elem = std::min(points.begin()+offset,points.end()-offset,
-                                 [](const auto& a, const auto& b) {return std::hypot(a->x,+a->y,a->z) < std::hypot(b->x,b->y,b->z); });
-	    qInfo() << min_elem->x << min_elem->y << min_elem->z;
+                break;
+            case Modo::STRAIGHT_LINE:
+                straight_line(filtered_points);
+                break;
+            case Modo::CHOCACHOCA:
+                chocachoca(filtered_points);
+                break;
+            default:
+                omnirobot_proxy->setSpeedBase(0,0,0);
+        }
     }
 	catch(const Ice::Exception &e)
 	{
 	  std::cout << "Error reading from Camera" << e << std::endl;
 	}
-
 }
 
 int SpecificWorker::startup_check()
@@ -114,24 +126,103 @@ int SpecificWorker::startup_check()
 	return 0;
 }
 
+void SpecificWorker::follow_wall(RoboCompLidar3D::TPoints &f_points)
+{
+    int offset1 = f_points.size()/2;
+    int offset2 = f_points.size()*3/4;
+    if(hypot(f_points[offset1].x,f_points[offset1].y) < 900) //CALCULAR PARA QUE EL ANGULO DEL ROBOT CON LA PARED SEA DE 90º
+        omnirobot_proxy->setSpeedBase(0, 0, 0.5);
+    else
+    {
+        if(hypot(f_points[offset2].x,f_points[offset2].y) < 300)
+            omnirobot_proxy->setSpeedBase(0, 0, 0.5);
+        else
+            omnirobot_proxy->setSpeedBase(1000/1000.f, 0, 0);
+    }
+}
+
+void SpecificWorker::spiral(RoboCompLidar3D::TPoints &f_points)
+{
+    omnirobot_proxy->setSpeedBase(400/1000.f, 0, 0.4);
+}
+
+void SpecificWorker::straight_line(RoboCompLidar3D::TPoints &f_points)
+{
+    int offset = f_points.size()/2;
+    if (hypot(f_points[offset].x,f_points[offset].y) > 1000)
+        omnirobot_proxy->setSpeedBase(1000/1000.f, 0, 0);
+    else
+        modo = Modo::IDLE;
+}
+
+void SpecificWorker::chocachoca(RoboCompLidar3D::TPoints &filtered_points)
+{
+    int offset = filtered_points.size()/2-filtered_points.size()/5;
+
+    auto min_elem = std::min_element(filtered_points.begin()+offset,filtered_points.end()-offset,
+                                     [](auto a, auto b) {return std::hypot(a.x,+a.y) < std::hypot(b.x,b.y); });
+    //qInfo() << min_elem->x << min_elem->y << min_elem->z;
+    const float MIN_DISTANCE = 800;
+    if(std::hypot(min_elem->x, min_elem->y) < MIN_DISTANCE)
+    {
+        // STOP the robot && START
+        try
+        {
+            omnirobot_proxy->setSpeedBase(0,0,0.5);
+        }
+        catch (const Ice::Exception &e)
+        { std::cout << "Error reading from Camera" << e << std::endl;
+        }
+    }
+    else
+    {
+        //start the robot
+        try
+        {
+            omnirobot_proxy->setSpeedBase(1000/1000.f, 0, 0);
+        }
+        catch (const Ice::Exception &e)
+        { std::cout << "Error reading from Camera" << e << std::endl;
+        }
+    }
+}
+
 void SpecificWorker::draw_lidar(RoboCompLidar3D::TPoints &points, AbstractGraphicViewer *viewer)
 {
+    //Obtener campo de vision
+    int offset = points.size()/2-points.size()/5;
+    auto p1 = points.at(offset);
+    float alpha = atan2(p1.x,p1.y);
+
     static std::vector<QGraphicsItem*> borrar;
+    static QGraphicsItem *borrarl1;
+    static QGraphicsItem *borrarl2;
     for(auto &b: borrar)
     {
         viewer->scene.removeItem(b);
         delete b;
     }
+    if(borrarl1 != nullptr)
+    {
+        viewer->scene.removeItem(borrarl1);
+        delete borrarl1;
+    }
+    if(borrarl2 != nullptr)
+    {
+        viewer->scene.removeItem(borrarl2);
+        delete borrarl2;
+    }
 
     borrar.clear();
 
+    borrarl1 = viewer->scene.addLine(0,0,5000*sin(alpha), 5000*cos(alpha),QPen(QColor("red"),50));
+    borrarl2 = viewer->scene.addLine(0,0,5000*sin(-alpha), 5000*cos(-alpha),QPen(QColor("green"),50));
     for(const auto &p: points)
     {
         auto point = viewer->scene.addRect(-50, -50, 100, 100, QPen("blue"),QBrush(QColor("blue")));
         point->setPos(p.x,p.y);
         borrar.push_back(point);
     }
-
 }
 
 

@@ -24,19 +24,6 @@
     <list default="true" id="8e4a4d6b-e415-4892-9073-27e3106d9b15" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Testing/Temporary/LastTest.log" beforeDir="false" afterPath="$PROJECT_DIR$/Testing/Temporary/LastTest.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chocachoca.cdsl" beforeDir="false" afterPath="$PROJECT_DIR$/chocachoca.cdsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/etc/config" beforeDir="false" afterPath="$PROJECT_DIR$/etc/config" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Lidar3D.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/Lidar3D.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Lidar3D.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/Lidar3D.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/chocachoca_autogen/EWIEGA46WW/moc_genericmonitor.cpp.d" beforeDir="false" afterPath="$PROJECT_DIR$/src/chocachoca_autogen/EWIEGA46WW/moc_genericmonitor.cpp.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/chocachoca_autogen/EWIEGA46WW/moc_genericworker.cpp.d" beforeDir="false" afterPath="$PROJECT_DIR$/src/chocachoca_autogen/EWIEGA46WW/moc_genericworker.cpp.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/chocachoca_autogen/EWIEGA46WW/moc_specificmonitor.cpp.d" beforeDir="false" afterPath="$PROJECT_DIR$/src/chocachoca_autogen/EWIEGA46WW/moc_specificmonitor.cpp.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/chocachoca_autogen/EWIEGA46WW/moc_specificworker.cpp.d" beforeDir="false" afterPath="$PROJECT_DIR$/src/chocachoca_autogen/EWIEGA46WW/moc_specificworker.cpp.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/config.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/config.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/genericworker.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/genericworker.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/genericworker.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/genericworker.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/specificworker.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/specificworker.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/specificworker.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/specificworker.h" afterDir="false" />
     </list>
@@ -88,17 +75,12 @@
   }
 }</component>
   <component name="RunManager" selected="CMake Application.chocachoca">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="ICES__home_usuario_robocomp_components_Robotica_chocachoca_src" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="chocachoca" TARGET_NAME="ICES__home_usuario_robocomp_components_Robotica_chocachoca_src" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="chocachoca" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="chocachoca" TARGET_NAME="chocachoca" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="chocachoca" RUN_TARGET_NAME="chocachoca">
+    <configuration name="chocachoca" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="$ProjectFileDir$/etc/config" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="chocachoca" TARGET_NAME="chocachoca" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="chocachoca" RUN_TARGET_NAME="chocachoca">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -123,6 +105,11 @@
       <workItem from="1696344166722" duration="1000" />
       <workItem from="1696344849764" duration="1707000" />
       <workItem from="1696426764339" duration="5274000" />
+      <workItem from="1696945296384" duration="6025000" />
+      <workItem from="1697031961330" duration="1000" />
+      <workItem from="1697032187581" duration="1000" />
+      <workItem from="1697032936342" duration="5210000" />
+      <workItem from="1697549613815" duration="6971000" />
     </task>
     <servers />
   </component>
