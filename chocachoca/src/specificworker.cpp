@@ -143,7 +143,9 @@ void SpecificWorker::follow_wall(RoboCompLidar3D::TPoints &f_points)
 
 void SpecificWorker::spiral(RoboCompLidar3D::TPoints &f_points)
 {
-    omnirobot_proxy->setSpeedBase(400/1000.f, 0, 0.4);
+    float acum = 0.0;
+    omnirobot_proxy->setSpeedBase(100/1000.f, 0, 0.1*acum);
+
 }
 
 void SpecificWorker::straight_line(RoboCompLidar3D::TPoints &f_points)

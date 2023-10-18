@@ -48,7 +48,7 @@ private:
     AbstractGraphicViewer* viewer;
 
     enum class Modo { IDLE, FOLLOW_WALL, STRAIGHT_LINE, SPIRAL, CHOCACHOCA };
-    Modo modo = Modo::FOLLOW_WALL;
+    Modo modo = Modo::CHOCACHOCA;
     void follow_wall(RoboCompLidar3D::TPoints &f_points);
     void straight_line(RoboCompLidar3D::TPoints &f_points);
     void spiral(RoboCompLidar3D::TPoints &f_points);
