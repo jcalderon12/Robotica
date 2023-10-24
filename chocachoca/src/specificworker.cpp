@@ -92,16 +92,19 @@ void SpecificWorker::compute()
         draw_lidar(filtered_points,viewer);
 
         /// control
-
+        std::tuple<SpecificWorker::Modo,float,float> result;
         switch (modo) {
             case Modo::IDLE:
-                    omnirobot_proxy->setSpeedBase(0,0,0);
+
                 break;
             case Modo::FOLLOW_WALL:
                 follow_wall(filtered_points);
                 break;
             case Modo::SPIRAL:
-
+                spiral(filtered_points);
+                break;
+            case Modo::TURN:
+                turn(filtered_points);
                 break;
             case Modo::STRAIGHT_LINE:
                 straight_line(filtered_points);
@@ -109,9 +112,8 @@ void SpecificWorker::compute()
             case Modo::CHOCACHOCA:
                 chocachoca(filtered_points);
                 break;
-            default:
-                omnirobot_proxy->setSpeedBase(0,0,0);
         }
+        modo = std::get<Modo>(result);
     }
 	catch(const Ice::Exception &e)
 	{
@@ -126,40 +128,88 @@ int SpecificWorker::startup_check()
 	return 0;
 }
 
-void SpecificWorker::follow_wall(RoboCompLidar3D::TPoints &f_points)
+std::tuple<SpecificWorker::Modo, float ,float> SpecificWorker::follow_wall(RoboCompLidar3D::TPoints &f_points)
 {
-    int offset1 = f_points.size()/2;
-    int offset2 = f_points.size()*3/4;
-    if(hypot(f_points[offset1].x,f_points[offset1].y) < 900) //CALCULAR PARA QUE EL ANGULO DEL ROBOT CON LA PARED SEA DE 90º
-        omnirobot_proxy->setSpeedBase(0, 0, 0.5);
+    int offset = filtered_points.size()/2-filtered_points.size()/8;
+
+    auto min_elem = std::min_element(filtered_points.begin()+offset,filtered_points.end()-offset,
+                                     [](auto a, auto b) {return std::hypot(a.x,+a.y) < std::hypot(b.x,b.y); });
+    const float MIN_DISTANCE = 800;
+    if(std::hypot(min_elem->x, min_elem->y) < MIN_DISTANCE)
+    {
+        SpecificWorker::Modo m = Modo::TURN;
+        float v_adv = 0;
+        float v_rot = 0.5;
+        return std::make_tuple(m,v_adv,v_rot);
+    }
+    offset = filtered_points.size()*3/4-filtered_points.size()/8;
+    auto min_elem = std::min_element(filtered_points.begin()+offset,filtered_points.end()-offset,
+                                     [](auto a, auto b) {return std::hypot(a.x,+a.y) < std::hypot(b.x,b.y); });
+    const float REF_DISTANCE = 800;
+    if(std::hypot(min_elem->x, min_elem->y) < REF_DISTANCE + 200)
+        omnirobot_proxy->setSpeedBase(/*velocidad actual*/,0,0.2);
     else
     {
-        if(hypot(f_points[offset2].x,f_points[offset2].y) < 300)
-            omnirobot_proxy->setSpeedBase(0, 0, 0.5);
-        else
-            omnirobot_proxy->setSpeedBase(1000/1000.f, 0, 0);
+        if(std::hypot(min_elem->x, min_elem->y) > REF_DISTANCE + 200)
+            omnirobot_proxy->setSpeedBase(/*velocidad actual*/,0,-0.2);
+        return ;
     }
 }
 
 void SpecificWorker::spiral(RoboCompLidar3D::TPoints &f_points)
 {
-    float acum = 0.0;
-    omnirobot_proxy->setSpeedBase(100/1000.f, 0, 0.1*acum);
+    int offset = filtered_points.size()/2-filtered_points.size()/5  ;
 
+    auto min_elem = std::min_element(filtered_points.begin()+offset,filtered_points.end()-offset,
+                                     [](auto a, auto b) {return std::hypot(a.x,+a.y) < std::hypot(b.x,b.y); });
+    //qInfo() << min_elem->x << min_elem->y << min_elem->z;
+    const float MIN_DISTANCE = 800;
+    if(std::hypot(min_elem->x, min_elem->y) > MIN_DISTANCE)
+        omnirobot_proxy->setSpeedBase(100/1000.f, 0, vrot);
 }
 
-void SpecificWorker::straight_line(RoboCompLidar3D::TPoints &f_points)
+std::tuple<SpecificWorker::Modo, float ,float> SpecificWorker::straight_line(RoboCompLidar3D::TPoints &f_points)
 {
-    int offset = f_points.size()/2;
-    if (hypot(f_points[offset].x,f_points[offset].y) > 1000)
-        omnirobot_proxy->setSpeedBase(1000/1000.f, 0, 0);
+
+    int offset = filtered_points.size()/2-filtered_points.size()/8  ;
+
+    auto min_elem = std::min_element(filtered_points.begin()+offset,filtered_points.end()-offset,
+                                     [](auto a, auto b) {return std::hypot(a.x,+a.y) < std::hypot(b.x,b.y); });
+    const float MIN_DISTANCE = 800;
+    if(std::hypot(min_elem->x, min_elem->y) < MIN_DISTANCE)
+    {
+        return make_tuple(SpecificWorker::Modo::TURN,0.0,0.5);
+    }
+    //Detectar si hay mas de 5000 de distancia con cualquier punto para pasar a spiral
+    min_elem = std::min_element(filtered_points.begin(),filtered_points.end(),
+                                [](auto a, auto b) {return std::hypot(a.x,+a.y) < std::hypot(b.x,b.y); });
+    if(std::hypot(min_elem->x,min_elem->y) > 2000)
+        return make_tuple(Modo::SPIRAL,2000,0);
     else
-        modo = Modo::IDLE;
+        return make_tuple(Modo::STRAIGHT_LINE,2000,0);
+}
+
+std::tuple<SpecificWorker::Modo, float ,float> SpecificWorker::turn(RoboCompLidar3D::TPoints &f_points)
+{
+    int offset = filtered_points.size()/2-filtered_points.size()/8  ;
+    srand(time(0));
+
+    auto min_elem = std::min_element(filtered_points.begin()+offset,filtered_points.end()-offset,
+                                     [](auto a, auto b) {return std::hypot(a.x,+a.y) < std::hypot(b.x,b.y); });
+    const float MIN_DISTANCE = 800;
+    if(std::hypot(min_elem->x, min_elem->y) > MIN_DISTANCE)
+    {
+        int random = rand() % 2;
+        if(random == 0)
+            return make_tuple(Modo::STRAIGHT_LINE,2000,0);
+        else
+            return make_tuple(Modo::FOLLOW_WALL,2000,0);
+    }
 }
 
 void SpecificWorker::chocachoca(RoboCompLidar3D::TPoints &filtered_points)
 {
-    int offset = filtered_points.size()/2-filtered_points.size()/5;
+    int offset = filtered_points.size()/2-filtered_points.size()/5  ;
 
     auto min_elem = std::min_element(filtered_points.begin()+offset,filtered_points.end()-offset,
                                      [](auto a, auto b) {return std::hypot(a.x,+a.y) < std::hypot(b.x,b.y); });
@@ -186,6 +236,11 @@ void SpecificWorker::chocachoca(RoboCompLidar3D::TPoints &filtered_points)
         catch (const Ice::Exception &e)
         { std::cout << "Error reading from Camera" << e << std::endl;
         }
+        //Detectar si hay mas de 5000 de distancia con cualquier punto para pasar a spiral
+        min_elem = std::min_element(filtered_points.begin(),filtered_points.end(),
+                                    [](auto a, auto b) {return std::hypot(a.x,+a.y) < std::hypot(b.x,b.y); });
+        if(std::hypot(min_elem->x,min_elem->y) > 2000)
+            modo = Modo::SPIRAL;
     }
 }
 

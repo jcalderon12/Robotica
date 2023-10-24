@@ -47,10 +47,11 @@ private:
 	bool startup_check_flag;
     AbstractGraphicViewer* viewer;
 
-    enum class Modo { IDLE, FOLLOW_WALL, STRAIGHT_LINE, SPIRAL, CHOCACHOCA };
+    enum class Modo { IDLE, FOLLOW_WALL, STRAIGHT_LINE, TURN, SPIRAL, CHOCACHOCA };
     Modo modo = Modo::CHOCACHOCA;
     void follow_wall(RoboCompLidar3D::TPoints &f_points);
     void straight_line(RoboCompLidar3D::TPoints &f_points);
+    void turn(RoboCompLidar3D::TPoints &f_points);
     void spiral(RoboCompLidar3D::TPoints &f_points);
     void chocachoca(RoboCompLidar3D::TPoints &f_points);
     void draw_lidar(RoboCompLidar3D::TPoints &points,AbstractGraphicViewer *viewer);
