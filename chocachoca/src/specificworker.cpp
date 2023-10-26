@@ -148,13 +148,13 @@ std::tuple<SpecificWorker::Modo, float , float, float> SpecificWorker::straight_
     if(std::hypot(min_elem->x, min_elem->y) < MIN_DISTANCE)
     {
         qInfo() << __FUNCTION__ << "collision";
-        return make_tuple(Modo::TURN,0,0,2);
+        return make_tuple(Modo::TURN,0,0,3);
     }
     //Detectar si hay mas de 5000 de distancia con cualquier punto para pasar a spiral
     min_elem = std::min_element(filtered_points.begin(),filtered_points.end(),
                                 [](auto a, auto b) {return std::hypot(a.x,+a.y) < std::hypot(b.x,b.y); });
     if(std::hypot(min_elem->x,min_elem->y) > 2000)
-        return make_tuple(Modo::SPIRAL,300,0,3);
+        return make_tuple(Modo::SPIRAL,500,0,3);
     else
     {
         _v_adv=2000;
@@ -179,11 +179,15 @@ std::tuple<SpecificWorker::Modo, float, float, float> SpecificWorker::turn(RoboC
     const float MIN_DISTANCE = 600;
     if(std::hypot(min_elem->x, min_elem->y) > MIN_DISTANCE)
     {
-        int random = rand() % 2;
+        int random = rand() % 3;
         if(random == 0)
             return make_tuple(Modo::STRAIGHT_LINE,2000,0,0);
         else
+        {
+            n_fw++;
             return make_tuple(Modo::FOLLOW_WALL,2000,0,0);
+        }
+
     }
     return make_tuple(_modo,_v_adv,_v_lat,_v_rot);
 }
@@ -203,13 +207,13 @@ std::tuple<SpecificWorker::Modo, float, float, float> SpecificWorker::follow_wal
     const float MIN_DISTANCE = 600;
     if(std::hypot(min_elem->x, min_elem->y) < MIN_DISTANCE)
     {
-            return make_tuple(Modo::TURN,0,0,2);
+            return make_tuple(Modo::TURN,0,0,3);
     }
     offset = filtered_points.size()*3/4-filtered_points.size()/8;
     int offset2 = filtered_points.size()*3/4+filtered_points.size()/8;
     min_elem = std::min_element(filtered_points.begin()+offset,filtered_points.begin()+offset2,
                                      [](auto a, auto b) {return std::hypot(a.x,+a.y) < std::hypot(b.x,b.y); });
-    const float REF_DISTANCE = 600;
+    const float REF_DISTANCE = 600+(200*(n_fw/4));
     if(std::hypot(min_elem->x, min_elem->y) < REF_DISTANCE - 100)
     {
         _v_adv=600;
