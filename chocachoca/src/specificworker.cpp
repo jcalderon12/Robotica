@@ -183,10 +183,7 @@ std::tuple<SpecificWorker::Modo, float, float, float> SpecificWorker::turn(RoboC
         if(random == 0)
             return make_tuple(Modo::STRAIGHT_LINE,2000,0,0);
         else
-        {
-            n_fw++;
             return make_tuple(Modo::FOLLOW_WALL,2000,0,0);
-        }
 
     }
     return make_tuple(_modo,_v_adv,_v_lat,_v_rot);
@@ -213,7 +210,7 @@ std::tuple<SpecificWorker::Modo, float, float, float> SpecificWorker::follow_wal
     int offset2 = filtered_points.size()*3/4+filtered_points.size()/8;
     min_elem = std::min_element(filtered_points.begin()+offset,filtered_points.begin()+offset2,
                                      [](auto a, auto b) {return std::hypot(a.x,+a.y) < std::hypot(b.x,b.y); });
-    const float REF_DISTANCE = 700/**(n_fw/4)*/;
+    const float REF_DISTANCE = 700;
     if(std::hypot(min_elem->x, min_elem->y) < REF_DISTANCE - 100)
     {
         _v_adv=700;
@@ -241,7 +238,7 @@ std::tuple<SpecificWorker::Modo, float, float, float> SpecificWorker::spiral(Rob
                                      [](auto a, auto b) {return std::hypot(a.x,+a.y) < std::hypot(b.x,b.y); });
     const float MIN_DISTANCE = 800;
     if(std::hypot(min_elem->x, min_elem->y) > MIN_DISTANCE)
-        return make_tuple(Modo::SPIRAL,_v_adv+7,0,_v_rot-0.007);
+        return make_tuple(Modo::SPIRAL,_v_adv+10,0,_v_rot-0.01);
     else
         return make_tuple(Modo::TURN,0,0,3);
 }
