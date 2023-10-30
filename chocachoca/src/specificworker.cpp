@@ -179,7 +179,7 @@ std::tuple<SpecificWorker::Modo, float, float, float> SpecificWorker::turn(RoboC
     const float MIN_DISTANCE = 600;
     if(std::hypot(min_elem->x, min_elem->y) > MIN_DISTANCE)
     {
-        int random = rand() % 4;
+        int random = rand() % 2;
         if(random == 0)
             return make_tuple(Modo::STRAIGHT_LINE,2000,0,0);
         else
@@ -204,7 +204,7 @@ std::tuple<SpecificWorker::Modo, float, float, float> SpecificWorker::follow_wal
 
     auto min_elem = std::min_element(filtered_points.begin()+offset,filtered_points.end()-offset,
                                      [](auto a, auto b) {return std::hypot(a.x,+a.y) < std::hypot(b.x,b.y); });
-    const float MIN_DISTANCE = 800;
+    const float MIN_DISTANCE = 600;
     if(std::hypot(min_elem->x, min_elem->y) < MIN_DISTANCE)
     {
             return make_tuple(Modo::TURN,0,0,3);
@@ -213,7 +213,7 @@ std::tuple<SpecificWorker::Modo, float, float, float> SpecificWorker::follow_wal
     int offset2 = filtered_points.size()*3/4+filtered_points.size()/8;
     min_elem = std::min_element(filtered_points.begin()+offset,filtered_points.begin()+offset2,
                                      [](auto a, auto b) {return std::hypot(a.x,+a.y) < std::hypot(b.x,b.y); });
-    const float REF_DISTANCE = 300+(300*(n_fw/4));
+    const float REF_DISTANCE = 700/**(n_fw/4)*/;
     if(std::hypot(min_elem->x, min_elem->y) < REF_DISTANCE - 100)
     {
         _v_adv=700;
@@ -243,7 +243,7 @@ std::tuple<SpecificWorker::Modo, float, float, float> SpecificWorker::spiral(Rob
     if(std::hypot(min_elem->x, min_elem->y) > MIN_DISTANCE)
         return make_tuple(Modo::SPIRAL,_v_adv+7,0,_v_rot-0.007);
     else
-        return make_tuple(Modo::TURN,0,0,2);
+        return make_tuple(Modo::TURN,0,0,3);
 }
 
 void SpecificWorker::chocachoca(RoboCompLidar3D::TPoints &filtered_points)
