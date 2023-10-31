@@ -48,8 +48,9 @@ private:
     AbstractGraphicViewer* viewer;
 
     enum class Modo { IDLE, FOLLOW_WALL, STRAIGHT_LINE, TURN, SPIRAL, CHOCACHOCA };
-    Modo modo = Modo::STRAIGHT_LINE;
+    Modo modo = Modo::STRAIGHT_LINE; //CAMBIAR A FOLLOW_WALL PARA MODO DIENTES DE SIERRA
     float v_rot,v_adv,v_lat;
+    //int n_fw=0; //NECESARIO PARA MODO DIENTES DE SIERRA
     std::tuple<SpecificWorker::Modo, float , float, float> straight_line(RoboCompLidar3D::TPoints &f_points, std::tuple<SpecificWorker::Modo, float, float, float> state);
     std::tuple<SpecificWorker::Modo, float , float, float> turn(RoboCompLidar3D::TPoints &f_points, std::tuple<SpecificWorker::Modo, float, float, float> state);
     std::tuple<SpecificWorker::Modo, float, float, float> follow_wall(RoboCompLidar3D::TPoints &f_points, std::tuple<SpecificWorker::Modo, float, float, float> state);
