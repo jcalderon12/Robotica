@@ -17,6 +17,8 @@
  *    along with RoboComp.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "specificworker.h"
+#include "cppitertools/sliding_window.hpp"
+#include "cppitertools/combinations.hpp"
 
 /**
 * \brief Default constructor
@@ -82,36 +84,26 @@ void SpecificWorker::compute()
 {
 	try
 	{
-        auto ldata =lidar3d_proxy->getLidarData("bpearl", 0, 360, 1);
+        auto ldata =lidar3d_proxy->getLidarData("helios", 0, 360, 1);
         qInfo() << ldata.points.size();
         const auto &points = ldata.points;
         if( points.empty()) return;
 
         RoboCompLidar3D::TPoints filtered_points;
-        std::ranges::copy_if(ldata.points, std::back_inserter(filtered_points), [](auto &p){ return p.z < 2000;});
+        std::ranges::copy_if(ldata.points, std::back_inserter(filtered_points), [](auto &p){ return p.z < 1200;});
         draw_lidar(filtered_points,viewer);
 
+        struct Lines lineas = obtener_lineas(filtered_points);
+        lineas = extraer_picos(lineas);
+        Doors doors = get_doors(lineas);
+        draw_doors(doors , viewer);
+
         /// control
-        std::tuple<SpecificWorker::Modo, float, float, float> state = make_tuple(modo,v_adv,v_lat,v_rot);
+    /*    std::tuple<SpecificWorker::Modo, float, float, float> state = make_tuple(modo,v_adv,v_lat,v_rot);
 
         switch (modo) {
             case Modo::IDLE:
 
-                break;
-            case Modo::FOLLOW_WALL:
-                state = follow_wall(filtered_points, state);
-                break;
-            case Modo::SPIRAL:
-                state= spiral(filtered_points, state);
-                break;
-            case Modo::TURN:
-                state = turn(filtered_points, state);
-                break;
-            case Modo::STRAIGHT_LINE:
-                state = straight_line(filtered_points, state);
-                break;
-            case Modo::CHOCACHOCA:
-                chocachoca(filtered_points);
                 break;
         }
         modo = std::get<0>(state);
@@ -119,7 +111,7 @@ void SpecificWorker::compute()
         v_lat= std::get<2>(state);
         v_rot = std::get<3>(state);
         qInfo() << "v rot:" << v_rot << "v_lat:" << v_lat << "v adv:" << v_adv;
-        omnirobot_proxy->setSpeedBase(v_adv/1000.f,v_lat/1000.f,v_rot);
+        omnirobot_proxy->setSpeedBase(v_adv/1000.f,v_lat/1000.f,v_rot);*/
     }
 	catch(const Ice::Exception &e)
 	{
@@ -127,160 +119,72 @@ void SpecificWorker::compute()
 	}
 }
 
+SpecificWorker::Lines SpecificWorker::obtener_lineas(RoboCompLidar3D::TPoints &points){
+    const float bajo_bajo= 200;
+    const float bajo_alto= 400;
+    const float medio_bajo= 600;
+    const float medio_alto= 800;
+    const float alto_bajo= 1000;
+    const float alto_alto= 1200;
+    struct Lines lineas;
+    for (auto p : points){
+        if (p.z > bajo_bajo and p.z < bajo_alto ) lineas.bajo.push_back(p);
+        else {
+            if (p.z > medio_bajo and p.z < medio_alto) lineas.medio.push_back(p);
+            else if (p.z > alto_bajo and  p.z < alto_alto ) lineas.alto.push_back(p);
+        }
+    }
+    return lineas;
+}
+
+SpecificWorker::Lines SpecificWorker::extraer_picos(const SpecificWorker::Lines &lines)
+{
+    Lines peaks;
+    const float THRESH = 500;
+
+    for(const auto &both : iter::sliding_window(lines.medio, 2))
+        if(fabs(both [1].r - both[0].r) > THRESH)
+            peaks.bajo.push_back(both[0]);
+
+    return peaks;
+}
+
+SpecificWorker::Doors SpecificWorker::get_doors(const SpecificWorker::Lines &peaks){
+    auto dist = [](auto a, auto b)
+            { return std::hypot(a.x-b.x, a.y-b.y); };
+
+    Doors doors;
+    const float THRES_DOOR = 100;
+
+    auto near_door = [doors, dist, THRES_DOOR](auto d)
+            { for(auto &&old : doors)
+                {
+                    if(dist(old.left, d.left) < THRES_DOOR or
+                       dist(old.right, d.right) < THRES_DOOR or
+                       dist(old.left, d.right) < THRES_DOOR or
+                       dist(old.right, d.left) < THRES_DOOR)
+                       return true;
+                    else
+                        return false;
+                }
+            };
+    for(auto &&par : peaks.medio | iter::combinations(2))
+    {
+        if(dist(par[0], par[1]) < 1300 and dist(par[0],par[1]) > 500)
+        {
+            auto door = Door{par[0],par[1]};
+            if(not near_door(door))
+                doors.emplace_back(door);
+        }
+    }
+    return doors;
+}
+
 int SpecificWorker::startup_check()
 {
 	std::cout << "Startup check" << std::endl;
 	QTimer::singleShot(200, qApp, SLOT(quit()));
 	return 0;
-}
-
-std::tuple<SpecificWorker::Modo, float , float, float> SpecificWorker::straight_line(RoboCompLidar3D::TPoints &filtered_points, std::tuple<SpecificWorker::Modo, float, float, float> state)
-{
-    SpecificWorker::Modo _modo=std::get<0>(state);
-    float _v_adv=std::get<1>(state);
-    float _v_lat=std::get<2>(state);
-    float _v_rot=std::get<3>(state);
-    int offset = filtered_points.size()/2-filtered_points.size()/18;
-
-    auto min_elem = std::min_element(filtered_points.begin()+offset,filtered_points.end()-offset,
-                                     [](auto a, auto b) {return std::hypot(a.x,+a.y) < std::hypot(b.x,b.y); });
-    const float MIN_DISTANCE = 800;
-    if(std::hypot(min_elem->x, min_elem->y) < MIN_DISTANCE)
-    {
-        qInfo() << __FUNCTION__ << "collision";
-        return make_tuple(Modo::TURN,0,0,3);
-    }
-    min_elem = std::min_element(filtered_points.begin(),filtered_points.end(),
-                                [](auto a, auto b) {return std::hypot(a.x,+a.y) < std::hypot(b.x,b.y); });
-    if(std::hypot(min_elem->x,min_elem->y) > 1500)
-        return make_tuple(Modo::SPIRAL,700,0,3);
-    else
-    {
-        _v_adv=2000;
-        _v_rot=0;
-    }
-    return make_tuple(_modo,_v_adv,_v_lat,_v_rot);
-}
-
-std::tuple<SpecificWorker::Modo, float, float, float> SpecificWorker::turn(RoboCompLidar3D::TPoints &filtered_points, std::tuple<SpecificWorker::Modo, float, float, float> state)
-{
-    SpecificWorker::Modo _modo=std::get<0>(state);
-    float _v_adv=std::get<1>(state);
-    float _v_lat=std::get<2>(state);
-    float _v_rot=std::get<3>(state);
-
-    int offset = filtered_points.size()/2-filtered_points.size()/18;
-
-    srand(time(0));
-
-    auto min_elem = std::min_element(filtered_points.begin()+offset,filtered_points.end()-offset,
-                                     [](auto a, auto b) {return std::hypot(a.x,+a.y) < std::hypot(b.x,b.y); });
-    const float MIN_DISTANCE = 600;
-    if(std::hypot(min_elem->x, min_elem->y) > MIN_DISTANCE)
-    {
-        int random = rand() % 2;
-        //int random = 1; //NECESARIO PARA MODO DIENTES DE SIERRA
-        if(random == 0)
-            return make_tuple(Modo::STRAIGHT_LINE,2000,0,0);
-        else{
-            //n_fw++; //NECESARIO PARA MODO DIENTES DE SIERRA
-            //if(n_fw/4 >= 4) n_fw=0; //NECESARIO PARA MODO DIENTES DE SIERRA
-            return make_tuple(Modo::FOLLOW_WALL,2000,0,0);
-        }
-    }
-    return make_tuple(_modo,_v_adv,_v_lat,_v_rot);
-}
-
-std::tuple<SpecificWorker::Modo, float, float, float> SpecificWorker::follow_wall(RoboCompLidar3D::TPoints &filtered_points, std::tuple<SpecificWorker::Modo, float, float,float> state)
-{
-    SpecificWorker::Modo _modo=std::get<0>(state);
-    float _v_adv=std::get<1>(state);
-    float _v_lat=std::get<2>(state);
-    float _v_rot=std::get<3>(state);
-
-    int offset = filtered_points.size()/2-filtered_points.size()/18;
-    srand(time(0));
-
-    auto min_elem = std::min_element(filtered_points.begin()+offset,filtered_points.end()-offset,
-                                     [](auto a, auto b) {return std::hypot(a.x,+a.y) < std::hypot(b.x,b.y); });
-    const float MIN_DISTANCE = 600;
-    if(std::hypot(min_elem->x, min_elem->y) < MIN_DISTANCE)
-    {
-            return make_tuple(Modo::TURN,0,0,3);
-    }
-    offset = filtered_points.size()*3/4;//-filtered_points.size()/8;
-    int offset2 = filtered_points.size()*3/4+filtered_points.size()/8;
-    min_elem = std::min_element(filtered_points.begin()+offset,filtered_points.begin()+offset2,
-                                     [](auto a, auto b) {return std::hypot(a.x,+a.y) < std::hypot(b.x,b.y); });
-    //const float REF_DISTANCE = 200+650*n_fw/4; //MODO DIENTES DE SIERRA
-    const float REF_DISTANCE = 600; //MODO CON ESPIRALES
-    if(std::hypot(min_elem->x, min_elem->y) < REF_DISTANCE - 100)
-    {
-        _v_adv=700;
-        _v_lat=1400;
-    }
-    else {
-        if (std::hypot(min_elem->x, min_elem->y) > REF_DISTANCE + 100) {
-            _v_adv = 700;
-            _v_lat = -1400;
-        }
-    }
-    return make_tuple(_modo,_v_adv,_v_lat,_v_rot);
-}
-
-std::tuple<SpecificWorker::Modo, float, float, float> SpecificWorker::spiral(RoboCompLidar3D::TPoints &filtered_points, std::tuple<SpecificWorker::Modo, float, float, float> state)
-{
-    SpecificWorker::Modo _modo=std::get<0>(state);
-    float _v_adv=std::get<1>(state);
-    float _v_lat=std::get<2>(state);
-    float _v_rot=std::get<3>(state);
-
-    int offset = filtered_points.size()/2-filtered_points.size()/18  ;
-
-    auto min_elem = std::min_element(filtered_points.begin()+offset,filtered_points.end()-offset,
-                                     [](auto a, auto b) {return std::hypot(a.x,+a.y) < std::hypot(b.x,b.y); });
-    const float MIN_DISTANCE = 800;
-    if(std::hypot(min_elem->x, min_elem->y) > MIN_DISTANCE)
-        return make_tuple(Modo::SPIRAL,_v_adv+10,0,_v_rot-0.011);
-    else
-        return make_tuple(Modo::TURN,0,0,3);
-}
-
-void SpecificWorker::chocachoca(RoboCompLidar3D::TPoints &filtered_points)
-{
-    int offset = filtered_points.size()/2-filtered_points.size()/18  ;
-
-    auto min_elem = std::min_element(filtered_points.begin()+offset,filtered_points.end()-offset,
-                                     [](auto a, auto b) {return std::hypot(a.x,+a.y) < std::hypot(b.x,b.y); });
-    //qInfo() << min_elem->x << min_elem->y << min_elem->z;
-    const float MIN_DISTANCE = 800;
-    if(std::hypot(min_elem->x, min_elem->y) < MIN_DISTANCE)
-    {
-        // STOP the robot && START
-        try
-        {
-            omnirobot_proxy->setSpeedBase(0,0,0.5);
-        }
-        catch (const Ice::Exception &e)
-        { std::cout << "Error reading from Camera" << e << std::endl;
-        }
-    }
-    else
-    {
-        //start the robot
-        try
-        {
-            omnirobot_proxy->setSpeedBase(1000/1000.f, 0, 0);
-        }
-        catch (const Ice::Exception &e)
-        { std::cout << "Error reading from Camera" << e << std::endl;
-        }
-        //Detectar si hay mas de 5000 de distancia con cualquier punto para pasar a spiral
-        min_elem = std::min_element(filtered_points.begin(),filtered_points.end(),
-                                    [](auto a, auto b) {return std::hypot(a.x,+a.y) < std::hypot(b.x,b.y); });
-        if(std::hypot(min_elem->x,min_elem->y) > 2000)
-            modo = Modo::SPIRAL;
-    }
 }
 
 void SpecificWorker::draw_lidar(RoboCompLidar3D::TPoints &points, AbstractGraphicViewer *viewer)
@@ -321,7 +225,27 @@ void SpecificWorker::draw_lidar(RoboCompLidar3D::TPoints &points, AbstractGraphi
     }
 }
 
+void SpecificWorker::draw_doors(const Doors &doors, AbstractGraphicViewer *viewer){
 
+    static std::vector<QGraphicsItem*> borrar;
+    for(auto &b: borrar)
+    {
+        viewer->scene.removeItem(b);
+        delete b;
+    }
+
+    borrar.clear();
+
+    for(const auto &d: doors)
+    {
+        auto point = viewer->scene.addRect(-50, -50, 100, 100, QPen("green"),QBrush(QColor("green")));
+        point->setPos(d.left.x, d.left.y);
+        borrar.push_back(point);
+        point = viewer->scene.addRect(-50, -50, 100, 100, QPen("green"),QBrush(QColor("green")));
+        point->setPos(d.right.x, d.right.y);
+        borrar.push_back(point);
+    }
+}
 
 
 /**************************************/
