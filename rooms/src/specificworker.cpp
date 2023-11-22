@@ -95,11 +95,12 @@ void SpecificWorker::compute()
         auto lines = get_lines(filtered_points);
         auto peaks = extract_peaks(lines);
         auto doors = get_doors(peaks);
+        auto true_doors = get_true_doors(doors);
 
         draw_lidar(filtered_points,viewer);
         draw_peaks(peaks, viewer);
-        draw_doors(doors , viewer);
-        for(auto d : doors)
+        draw_doors(true_doors , viewer);
+        for(auto d : true_doors)
             qInfo() << d.right.r << d.left.r ;
 
         /// control
@@ -139,7 +140,7 @@ SpecificWorker::Lines SpecificWorker::get_lines(RoboCompLidar3D::TPoints &points
 SpecificWorker::Lines SpecificWorker::extract_peaks(const SpecificWorker::Lines &lines)
 {
     Lines peaks;
-    const float THRESH = 1000;
+    const float THRESH = 600;
 
     for(const auto &both : iter::sliding_window(lines.low, 2))
         if(fabs(both [1].r - both[0].r) > THRESH)
@@ -154,12 +155,12 @@ SpecificWorker::Lines SpecificWorker::extract_peaks(const SpecificWorker::Lines 
     return peaks;
 }
 
-std::tuple<SpecificWorker::Doors,SpecificWorker::Doors,SpecificWorker::Doors> SpecificWorker::get_doors(const SpecificWorker::Lines &peaks){
+std::tuple<SpecificWorker::Doors,SpecificWorker::Doors,SpecificWorker::Doors> SpecificWorker::get_doors(const Lines &peaks){
     auto dist = [](auto a, auto b)
             { return std::hypot(a.x-b.x, a.y-b.y); };
 
     Doors doors_low,doors_middle,doors_high;
-    const float THRESH_DOOR = 100;
+    const float THRESH_DOOR = 200;
 
     auto near_door = [dist, THRESH_DOOR](auto d, Doors &doors)
             { for(auto &&old : doors)
@@ -172,14 +173,6 @@ std::tuple<SpecificWorker::Doors,SpecificWorker::Doors,SpecificWorker::Doors> Sp
                 }
                 return false;
             };
-
-    auto not_obstacule = [dist,peaks](auto d){
-        bool valid = true;
-        for(auto md:peaks.middle)
-            if (dist(md,d) < 10)
-
-
-    };
 
     for(auto &&par : peaks.low | iter::combinations(2))
     {
@@ -212,6 +205,31 @@ std::tuple<SpecificWorker::Doors,SpecificWorker::Doors,SpecificWorker::Doors> Sp
     }
     std::tuple<Doors,Doors,Doors> doors = make_tuple(doors_low,doors_middle,doors_high);
     return doors;
+}
+
+SpecificWorker::Doors SpecificWorker::get_true_doors(const std::tuple<Doors,Doors,Doors> &doors)
+{
+    Doors doors_low = get<0>(doors);
+    Doors doors_middle = get<1>(doors);
+    Doors doors_high = get<2>(doors);
+    Doors true_doors;
+    for(auto d : doors_low) {
+        bool high_check = false;
+        bool middle_check = false;
+        int i = 0;
+        int j = 0;
+        while (i < doors_middle.size() && !middle_check) {
+            if (doors_middle[i] == d) middle_check = true;
+            i++;
+        }
+        while(j<doors_high.size() && !high_check) {
+            if (doors_high[j] == d) high_check = true;
+            j++;
+        }
+        if(high_check && middle_check)
+            true_doors.emplace_back(d);
+    }
+    return true_doors;
 }
 
 int SpecificWorker::startup_check()
@@ -250,9 +268,23 @@ void SpecificWorker::draw_peaks(const Lines &peaks, AbstractGraphicViewer *viewe
 
     borrar.clear();
 
+    for(const auto &d: peaks.low)
+    {
+        auto point = viewer->scene.addRect(-50, -50, 100, 100, QPen("yellow"),QBrush(QColor("yellow")));
+        point->setPos(d.x, d.y);
+        borrar.push_back(point);
+    }
+
     for(const auto &d: peaks.middle)
     {
         auto point = viewer->scene.addRect(-50, -50, 100, 100, QPen("black"),QBrush(QColor("black")));
+        point->setPos(d.x, d.y);
+        borrar.push_back(point);
+    }
+
+    for(const auto &d: peaks.high)
+    {
+        auto point = viewer->scene.addRect(-50, -50, 100, 100, QPen("red"),QBrush(QColor("red")));
         point->setPos(d.x, d.y);
         borrar.push_back(point);
     }
