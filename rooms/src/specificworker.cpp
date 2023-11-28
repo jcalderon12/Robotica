@@ -104,10 +104,22 @@ void SpecificWorker::compute()
             qInfo() << d.right.r << d.left.r ;
 
         /// control
-    /*    std::tuple<SpecificWorker::Modo, float, float, float> state = make_tuple(modo,v_adv,v_lat,v_rot);
+        std::tuple<SpecificWorker::Modo, float, float, float> state = make_tuple(modo,v_adv,v_lat,v_rot);
 
         switch (modo) {
             case Modo::IDLE:
+                state = make_tuple(Modo::IDLE,0,0,0);
+                break;
+            case Modo::SELECT_DOOR:
+                state = select_door(state);
+                break;
+            case Modo::MOVE_TO_DOOR:
+
+                break;
+            case Modo::CROSS_DOOR:
+
+                break;
+            case Modo::MOVE_TO_CENTER:
 
                 break;
         }
@@ -116,7 +128,7 @@ void SpecificWorker::compute()
         v_lat= std::get<2>(state);
         v_rot = std::get<3>(state);
         qInfo() << "v rot:" << v_rot << "v_lat:" << v_lat << "v adv:" << v_adv;
-        omnirobot_proxy->setSpeedBase(v_adv/1000.f,v_lat/1000.f,v_rot);*/
+        omnirobot_proxy->setSpeedBase(v_adv/1000.f,v_lat/1000.f,v_rot);
     }
 	catch(const Ice::Exception &e)
 	{
@@ -214,22 +226,17 @@ SpecificWorker::Doors SpecificWorker::get_true_doors(const std::tuple<Doors,Door
     Doors doors_high = get<2>(doors);
     Doors true_doors;
     for(auto d : doors_low) {
-        bool high_check = false;
-        bool middle_check = false;
-        int i = 0;
-        int j = 0;
-        while (i < doors_middle.size() && !middle_check) {
-            if (doors_middle[i] == d) middle_check = true;
-            i++;
-        }
-        while(j<doors_high.size() && !high_check) {
-            if (doors_high[j] == d) high_check = true;
-            j++;
-        }
+        bool middle_check = std::ranges::find(doors_middle,d) != doors_middle.end();
+        bool high_check = std::ranges::find(doors_high,d) != doors_high.end();
         if(high_check && middle_check)
             true_doors.emplace_back(d);
     }
     return true_doors;
+}
+
+std::tuple<SpecificWorker::Modo, float, float, float> SpecificWorker::select_door(std::tuple<Modo, float, float, float> state)
+{
+    return state;
 }
 
 int SpecificWorker::startup_check()
