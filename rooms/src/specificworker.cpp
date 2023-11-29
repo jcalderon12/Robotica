@@ -96,12 +96,15 @@ void SpecificWorker::compute()
         auto peaks = extract_peaks(lines);
         auto doors = get_doors(peaks);
         auto true_doors = get_true_doors(doors);
+        auto iter = std::ranges::find(true_doors,door_target);
+        if(iter == true_doors.end()) modo = Modo::SELECT_DOOR;
+        else door_target = *iter;
 
         draw_lidar(filtered_points,viewer);
         draw_peaks(peaks, viewer);
         draw_doors(true_doors , viewer);
-        for(auto d : true_doors)
-            qInfo() << d.right.r << d.left.r ;
+        //for(auto d : true_doors)
+            //qInfo() << d.right.r << d.left.r ;
 
         /// control
         std::tuple<SpecificWorker::Modo, float, float, float> state = make_tuple(modo,v_adv,v_lat,v_rot);
@@ -111,7 +114,9 @@ void SpecificWorker::compute()
                 state = make_tuple(Modo::IDLE,0,0,0);
                 break;
             case Modo::SELECT_DOOR:
-                state = select_door(state);
+                door_target = select_door(true_doors);
+                qInfo() << "Se ha buscado una puerta objetivo";
+                state = make_tuple(Modo::MOVE_TO_DOOR,v_adv,v_lat,v_rot);
                 break;
             case Modo::MOVE_TO_DOOR:
 
@@ -128,7 +133,8 @@ void SpecificWorker::compute()
         v_lat= std::get<2>(state);
         v_rot = std::get<3>(state);
         qInfo() << "v rot:" << v_rot << "v_lat:" << v_lat << "v adv:" << v_adv;
-        omnirobot_proxy->setSpeedBase(v_adv/1000.f,v_lat/1000.f,v_rot);
+        qInfo() << "Puerta seleccionada" << door.middle.x << door.middle.y;
+        //omnirobot_proxy->setSpeedBase(v_adv/1000.f,v_lat/1000.f,v_rot);
     }
 	catch(const Ice::Exception &e)
 	{
@@ -234,9 +240,14 @@ SpecificWorker::Doors SpecificWorker::get_true_doors(const std::tuple<Doors,Door
     return true_doors;
 }
 
-std::tuple<SpecificWorker::Modo, float, float, float> SpecificWorker::select_door(std::tuple<Modo, float, float, float> state)
-{
-    return state;
+SpecificWorker::Door SpecificWorker::select_door(Doors &true_doors) {
+    if (!true_doors.empty()) {
+        Door selected_door = true_doors[0];
+        for (auto d: true_doors)
+            if (d.middle.r < selected_door.middle.r) selected_door = d;
+        return selected_door;
+    }
+    return door;
 }
 
 int SpecificWorker::startup_check()
