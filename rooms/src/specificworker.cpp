@@ -85,7 +85,7 @@ void SpecificWorker::compute()
 	try
 	{
         auto ldata =lidar3d_proxy->getLidarData("helios", 0, 360, 1);
-        //qInfo() << ldata.points.size();
+        qInfo() << ldata.points.size();
         const auto &points = ldata.points;
         if( points.empty()) return;
 
@@ -96,6 +96,8 @@ void SpecificWorker::compute()
         auto peaks = extract_peaks(lines);
         auto doors = get_doors(peaks);
         auto true_doors = get_true_doors(doors);
+        for(auto d : true_doors)
+            qInfo() << d.right.r << d.left.r ;
         auto iter = std::ranges::find(true_doors,door_target);
         if(iter == true_doors.end()) modo = Modo::SELECT_DOOR;
         else door_target = *iter;
@@ -103,8 +105,8 @@ void SpecificWorker::compute()
         draw_lidar(filtered_points,viewer);
         draw_peaks(peaks, viewer);
         draw_doors(true_doors , viewer);
-        //for(auto d : true_doors)
-            //qInfo() << d.right.r << d.left.r ;
+        for(auto d : true_doors)
+            qInfo() << d.right.r << d.left.r ;
 
         /// control
         std::tuple<SpecificWorker::Modo, float, float, float> state = make_tuple(modo,v_adv,v_lat,v_rot);
@@ -133,7 +135,7 @@ void SpecificWorker::compute()
         v_lat= std::get<2>(state);
         v_rot = std::get<3>(state);
         qInfo() << "v rot:" << v_rot << "v_lat:" << v_lat << "v adv:" << v_adv;
-        qInfo() << "Puerta seleccionada" << door.middle.x << door.middle.y;
+        qInfo() << "Puerta seleccionada" << door_target.middle.x << door_target.middle.y;
         //omnirobot_proxy->setSpeedBase(v_adv/1000.f,v_lat/1000.f,v_rot);
     }
 	catch(const Ice::Exception &e)
@@ -231,13 +233,14 @@ SpecificWorker::Doors SpecificWorker::get_true_doors(const std::tuple<Doors,Door
     Doors doors_middle = get<1>(doors);
     Doors doors_high = get<2>(doors);
     Doors true_doors;
-    for(auto d : doors_low) {
+    /*for(auto d : doors_low) {
         bool middle_check = std::ranges::find(doors_middle,d) != doors_middle.end();
         bool high_check = std::ranges::find(doors_high,d) != doors_high.end();
         if(high_check && middle_check)
             true_doors.emplace_back(d);
     }
-    return true_doors;
+    return true_doors;*/
+    return doors_middle;
 }
 
 SpecificWorker::Door SpecificWorker::select_door(Doors &true_doors) {
@@ -247,7 +250,7 @@ SpecificWorker::Door SpecificWorker::select_door(Doors &true_doors) {
             if (d.middle.r < selected_door.middle.r) selected_door = d;
         return selected_door;
     }
-    return door;
+    return door_target;
 }
 
 int SpecificWorker::startup_check()
