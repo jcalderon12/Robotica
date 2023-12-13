@@ -30,6 +30,8 @@
 #include <genericworker.h>
 #include <abstract_graphic_viewer/abstract_graphic_viewer.h>
 #include <ranges>
+#include <ctime>
+#include <chrono>
 
 class SpecificWorker : public GenericWorker
 {
@@ -64,10 +66,8 @@ private:
         RoboCompLidar3D::TPoint right,left,middle;
         Door(const RoboCompLidar3D::TPoint &right_, const RoboCompLidar3D::TPoint &left_) : right(right_),left(left_)
         {
-            middle = RoboCompLidar3D::TPoint{right.x+left.x/2,right.y+left.y/2,right.z+left.z/2,
-                                             right.intensity+left.intensity/2,right.phi+left.phi/2,
-                                             right.theta+left.theta/2,right.r+left.r/2,right.distance2d+left.distance2d/2,
-                                             right.pixelX+left.pixelX/2,right.pixelY+left.pixelY/2};
+            middle.x = (left.x + right.x)/2;
+            middle.y = (left.y + right.y)/2;
         }
         Door(){right = left = middle = RoboCompLidar3D::TPoint(0,0,0);};
         bool operator==(const Door &d)const
@@ -104,9 +104,9 @@ private:
             Point a,b;
             Point M{middle.x, middle.y};
             a.x = M.x + u_perp.x * 1000;
-            a.y = M.y + u_perp.x * 1000;
+            a.y = M.y + u_perp.y * 1000;
             b.x = M.x - u_perp.x * 1000;
-            b.y = M.y - u_perp.x * 1000;
+            b.y = M.y - u_perp.y * 1000;
             float len_a = std::hypot(a.x, a.y);
             float len_b = std::hypot(b.x, b.y);
             return len_a < len_b ? a : b;
@@ -126,15 +126,20 @@ private:
     };
     using Doors = std::vector<Door>;
 
-    enum class Modo { IDLE, CROSS_DOOR, MOVE_TO_DOOR, SELECT_DOOR, MOVE_TO_CENTER};
-    Modo modo = Modo::IDLE;
+    enum class Modo { IDLE, CROSS_DOOR, MOVE_TO_DOOR, SELECT_DOOR};
+    Modo modo = Modo::SELECT_DOOR;
     Door door_target;
     float v_rot,v_adv,v_lat;
+    std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
     SpecificWorker::Lines get_lines(RoboCompLidar3D::TPoints &points);
     SpecificWorker::Lines extract_peaks(const SpecificWorker::Lines &lines);
     std::tuple<SpecificWorker::Doors,SpecificWorker::Doors,SpecificWorker::Doors> get_doors(const SpecificWorker::Lines &peaks);
     SpecificWorker::Doors get_true_doors(const std::tuple<SpecificWorker::Doors,SpecificWorker::Doors,SpecificWorker::Doors> &doors);
     SpecificWorker::Door select_door(Doors &true_doors);
+    float break_adv(float dist_to_target);
+    float break_rot(float rot);
+    std::tuple<SpecificWorker::Modo, float, float, float> moveToDoor(SpecificWorker::Door d_target);
+    std::tuple<SpecificWorker::Modo, float, float, float> crossDoor(SpecificWorker::Door d_target);
     void draw_lidar(RoboCompLidar3D::TPoints &points,AbstractGraphicViewer *viewer);
     void draw_peaks(const Lines &peaks, AbstractGraphicViewer *viewer);
     void draw_doors(const Doors &doors, AbstractGraphicViewer *viewer);

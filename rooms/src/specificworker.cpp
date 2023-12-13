@@ -85,7 +85,7 @@ void SpecificWorker::compute()
 	try
 	{
         auto ldata =lidar3d_proxy->getLidarData("helios", 0, 360, 1);
-        qInfo() << ldata.points.size();
+        //qInfo() << ldata.points.size();
         const auto &points = ldata.points;
         if( points.empty()) return;
 
@@ -96,17 +96,14 @@ void SpecificWorker::compute()
         auto peaks = extract_peaks(lines);
         auto doors = get_doors(peaks);
         auto true_doors = get_true_doors(doors);
-        for(auto d : true_doors)
-            qInfo() << d.right.r << d.left.r ;
         auto iter = std::ranges::find(true_doors,door_target);
-        if(iter == true_doors.end()) modo = Modo::SELECT_DOOR;
-        else door_target = *iter;
+        //if(iter == true_doors.end()) modo = Modo::SELECT_DOOR;
+        //else door_target = *iter;
+        door_target = *iter;
 
         draw_lidar(filtered_points,viewer);
-        draw_peaks(peaks, viewer);
+        //draw_peaks(peaks, viewer);
         draw_doors(true_doors , viewer);
-        for(auto d : true_doors)
-            qInfo() << d.right.r << d.left.r ;
 
         /// control
         std::tuple<SpecificWorker::Modo, float, float, float> state = make_tuple(modo,v_adv,v_lat,v_rot);
@@ -117,17 +114,16 @@ void SpecificWorker::compute()
                 break;
             case Modo::SELECT_DOOR:
                 door_target = select_door(true_doors);
-                qInfo() << "Se ha buscado una puerta objetivo";
+                qInfo() << "Modo: SELECT_DOOR";
                 state = make_tuple(Modo::MOVE_TO_DOOR,v_adv,v_lat,v_rot);
                 break;
             case Modo::MOVE_TO_DOOR:
-
+                qInfo() << "Modo: MOVE_TO_DOOR";
+                state = moveToDoor(door_target);
                 break;
             case Modo::CROSS_DOOR:
-
-                break;
-            case Modo::MOVE_TO_CENTER:
-
+                qInfo() << "Modo: CROSS_DOOR";
+                state = crossDoor(door_target);
                 break;
         }
         modo = std::get<0>(state);
@@ -136,7 +132,7 @@ void SpecificWorker::compute()
         v_rot = std::get<3>(state);
         qInfo() << "v rot:" << v_rot << "v_lat:" << v_lat << "v adv:" << v_adv;
         qInfo() << "Puerta seleccionada" << door_target.middle.x << door_target.middle.y;
-        //omnirobot_proxy->setSpeedBase(v_adv/1000.f,v_lat/1000.f,v_rot);
+        omnirobot_proxy->setSpeedBase(v_adv/1000.f,v_lat/1000.f,v_rot);
     }
 	catch(const Ice::Exception &e)
 	{
@@ -247,10 +243,42 @@ SpecificWorker::Door SpecificWorker::select_door(Doors &true_doors) {
     if (!true_doors.empty()) {
         Door selected_door = true_doors[0];
         for (auto d: true_doors)
-            if (d.middle.r < selected_door.middle.r) selected_door = d;
+            if (abs(d.angle_to_robot()) < abs(selected_door.angle_to_robot())) selected_door = d;
         return selected_door;
     }
     return door_target;
+}
+
+float SpecificWorker::break_adv(float dist_to_target){
+    return std::clamp(dist_to_target/500, 0.f, 1.f);
+}
+
+float SpecificWorker::break_rot(float rot){
+    return rot>=0 ? std::clamp(1-rot,0.f,1.f) : std::clamp(rot+1,0.f,1.f);
+}
+
+std::tuple<SpecificWorker::Modo, float, float, float> SpecificWorker::moveToDoor(SpecificWorker::Door d_target){
+    if(door_target.perp_dist_to_robot() < 300)
+    {
+        if(door_target.angle_to_robot() < -0.05)
+            return make_tuple(Modo::MOVE_TO_DOOR,0,0,0.5);
+        if(door_target.angle_to_robot() > 0.05)
+            return make_tuple(Modo::MOVE_TO_DOOR,0,0,-0.5);
+        start = std::chrono::high_resolution_clock::now();
+        return make_tuple(Modo::CROSS_DOOR,0,0,0);
+    }
+    float rot = -0.5 * door_target.perp_angle_to_robot();
+    float adv = 1000 * break_adv(door_target.perp_dist_to_robot()) * break_rot(door_target.perp_angle_to_robot());
+    return make_tuple(Modo::MOVE_TO_DOOR,adv,0,rot);
+}
+
+std::tuple<SpecificWorker::Modo, float, float, float> SpecificWorker::crossDoor(SpecificWorker::Door d_target){
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = duration_cast<std::chrono::milliseconds>(stop - start);
+    if(duration.count() < 4000)
+        return make_tuple(Modo::CROSS_DOOR,1000,0,0);
+    else
+        return make_tuple(Modo::SELECT_DOOR,0,0,0);
 }
 
 int SpecificWorker::startup_check()
@@ -326,6 +354,9 @@ void SpecificWorker::draw_doors(const Doors &doors, AbstractGraphicViewer *viewe
     {
         auto point = viewer->scene.addRect(-50, -50, 100, 100, QPen("green"),QBrush(QColor("green")));
         point->setPos(d.left.x, d.left.y);
+        borrar.push_back(point);
+        point = viewer->scene.addRect(-50, -50, 100, 100, QPen("purple"),QBrush(QColor("purple")));
+        point->setPos(d.perp_point().x, d.perp_point().y);
         borrar.push_back(point);
         point = viewer->scene.addRect(-50, -50, 100, 100, QPen("green"),QBrush(QColor("green")));
         point->setPos(d.right.x, d.right.y);
