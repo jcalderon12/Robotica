@@ -130,7 +130,7 @@ void SpecificWorker::compute()
         v_adv = std::get<1>(state);
         v_lat= std::get<2>(state);
         v_rot = std::get<3>(state);
-        qInfo() << "v rot:" << v_rot << "v_lat:" << v_lat << "v adv:" << v_adv;
+        qInfo() << "v rot:" << v_rot << "v_lat:" << v_lat << "v adv:" << v_adv << "habitacion actual:" << hab_actual;
         qInfo() << "Puerta seleccionada" << door_target.middle.x << door_target.middle.y;
         omnirobot_proxy->setSpeedBase(v_adv/1000.f,v_lat/1000.f,v_rot);
     }
@@ -241,6 +241,22 @@ SpecificWorker::Doors SpecificWorker::get_true_doors(const std::tuple<Doors,Door
 
 SpecificWorker::Door SpecificWorker::select_door(Doors &true_doors) {
     if (!true_doors.empty()) {
+        if (cont_h == 0){
+            graph = *new Graph();
+            hab_actual = cont_h;
+        }
+        else{
+            if (cont_h < 4){
+                hab_actual = graph.add_node()-1;
+                graph.add_edge(hab_actual,hab_actual-1);
+            }
+            else{
+                hab_actual = cont_h%4;
+                if (cont_h == 4) graph.add_edge(hab_actual,3);
+            }
+
+        }
+        cont_h++;
         Door selected_door = true_doors[0];
         for (auto d: true_doors)
             if (abs(d.angle_to_robot()) < abs(selected_door.angle_to_robot())) selected_door = d;

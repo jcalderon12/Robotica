@@ -32,6 +32,7 @@
 #include <ranges>
 #include <ctime>
 #include <chrono>
+#include "graph.h"
 
 class SpecificWorker : public GenericWorker
 {
@@ -129,6 +130,9 @@ private:
     enum class Modo { IDLE, CROSS_DOOR, MOVE_TO_DOOR, SELECT_DOOR};
     Modo modo = Modo::SELECT_DOOR;
     Door door_target;
+    int cont_h=0;
+    int hab_actual;
+    Graph graph;
     float v_rot,v_adv,v_lat;
     std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
     SpecificWorker::Lines get_lines(RoboCompLidar3D::TPoints &points);
